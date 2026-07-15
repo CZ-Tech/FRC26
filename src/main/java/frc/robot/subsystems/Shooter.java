@@ -112,6 +112,7 @@ public class Shooter {
 
     // 初始化时归零
     zeroEncoders();
+    verticalAngleMotor.setPosition(Constants.ShooterVerticalInitDeg / Constants.ShooterVerticalEncoderToDeg);
   }
 
   /** 把四个电机的编码器都重置为 0 */

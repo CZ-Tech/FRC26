@@ -32,8 +32,8 @@ public class Constants {
     // 输出方向（true=反转；TODO/FIXME：实测后确认）
     public static boolean ShooterTopFlywheelInverted      = false;
     public static boolean ShooterBottomFlywheelInverted   = true; // 与上飞轮反向
-    public static boolean ShooterVerticalAngleInverted    = false;
-    public static boolean ShooterHorizontalAngleInverted  = false;
+    public static boolean ShooterVerticalAngleInverted    = true;
+    public static boolean ShooterHorizontalAngleInverted  = true;
 
     // 电流限制（TODO/FIXME：按电机和减速比实测）
     public static double ShooterFlywheelStatorCurrentLimit = 60.0;
@@ -59,12 +59,13 @@ public class Constants {
 
     // 编码器→角度系数（TODO/FIXME：按减速比和机械零点标定）
     // 含义：电机转数 × 该系数 = 机构角度（度）
-    public static double ShooterVerticalEncoderToDeg   = 1.0;
+    public static double ShooterVerticalEncoderToDeg   = 15.5585;
     public static double ShooterHorizontalEncoderToDeg = 1.0;
 
     // 角度限位（TODO/FIXME：按机械结构实测）
-    public static double ShooterVerticalMinDeg   = -30.0;
-    public static double ShooterVerticalMaxDeg   =  60.0;
+    public static double ShooterVerticalMinDeg   = 16.620761;
+    public static double ShooterVerticalMaxDeg   =  75.0;
+    public static double ShooterVerticalInitDeg = ShooterVerticalMinDeg;  // 竖直方向调节电机初始化时应处在的角度
     public static double ShooterHorizontalMinDeg = -270.0; // 水平旋转硬限位：从零点向左最多 270°
     public static double ShooterHorizontalMaxDeg =  270.0; // 水平旋转硬限位：从零点向右最多 270°
 

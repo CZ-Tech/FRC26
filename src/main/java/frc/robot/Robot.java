@@ -8,6 +8,7 @@ import frc.robot.command.Auto;
 import frc.robot.lib.LimelightHelpers;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Transfer;
+import frc.robot.subsystems.MagicIntaker;
 import frc.robot.subsystems.chassis.ChassisSwerveOdo;
 import frc.robot.subsystems.chassis.OdoSwerveDrivetrain;
 import frc.robot.subsystems.chassis.SwerveChassis;
@@ -42,6 +43,7 @@ public class Robot extends TimedRobot {
   private final ChassisSwerveOdo odo;
   private final Shooter shooter = new Shooter();
   private final Transfer transfer = new Transfer();
+  private final MagicIntaker intaker = new MagicIntaker();
   private Auto auto; 
 
   private Command autoCommand; 
@@ -61,7 +63,7 @@ public class Robot extends TimedRobot {
     driveTrain = new OdoSwerveDrivetrain(modules, odo); 
     SmartDashboard.putBoolean("auto", false); 
 
-    // intaker.resetEncoderToUp();
+    intaker.resetEncoderToUp();
   }
 
   @Override
@@ -179,7 +181,7 @@ public class Robot extends TimedRobot {
     // SmartDashboard.putNumber("rRB", (rb.getTurningEncoderRadians()));
 
     // lift.putMotorPosition();
-    // intaker.putLog();
+    intaker.putLog();
     shooter.putData();
     transfer.putLog();
   }
@@ -305,8 +307,6 @@ public class Robot extends TimedRobot {
     // Shooter 手动测试（进入 Test 模式）
     // 在 SmartDashboard 中观察各项读数，用 gamepad0 逐项触发
     // =============================
-
-    shooter.putData();
 
     // 电机连接状态
     SmartDashboard.putBoolean("Shooter MotorsOK", shooter.areMotorsConnected());
