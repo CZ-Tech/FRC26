@@ -8,6 +8,16 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.PersistMode;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -16,22 +26,26 @@ public class Shooter {
   private final TalonFX topFlywheelMotor;
   private final TalonFX bottomFlywheelMotor;
   private final TalonFX verticalAngleMotor;
-  private final TalonFX horizontalAngleMotor;
+  private final SparkMax horizontalAngleMotor;
 
   private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0);
   private final PositionVoltage verticalAngleRequest = new PositionVoltage(0);
-  private final PositionVoltage horizontalAngleRequest = new PositionVoltage(0);
+  private final SparkClosedLoopController horizontalAngleController;
+
+  private final RelativeEncoder horizontalEncoder;
 
   private double targetFlywheelVelocityRPS = 0;
   private double targetVerticalAngleDeg = 0;
   private double targetHorizontalAngleDeg = 0;
 
   public Shooter() {
-    // 初始化四个 TalonFX
+    // 初始化三个 TalonFX + 一个 SparkMax（水平角度）
     topFlywheelMotor = new TalonFX(Constants.ShooterTopFlywheelCANID);
     bottomFlywheelMotor = new TalonFX(Constants.ShooterBottomFlywheelCANID);
     verticalAngleMotor = new TalonFX(Constants.ShooterVerticalAngleCANID);
-    horizontalAngleMotor = new TalonFX(Constants.ShooterHorizontalAngleCANID);
+    horizontalAngleMotor = new SparkMax(Constants.ShooterHorizontalAngleCANID, SparkLowLevel.MotorType.kBrushless);
+    horizontalEncoder = horizontalAngleMotor.getEncoder();
+    horizontalAngleController = horizontalAngleMotor.getClosedLoopController();
 
     // 飞轮配置：速度闭环
     TalonFXConfiguration flywheelConfig = new TalonFXConfiguration();
@@ -74,17 +88,27 @@ public class Shooter {
         ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
     verticalAngleMotor.getConfigurator().apply(angleConfig, 0.050);
 
-    // 水平电机不需要重力补偿，清零 kG
-    angleConfig.Slot0.kG = 0.0;
-    angleConfig.MotorOutput.Inverted = Constants.ShooterHorizontalAngleInverted
-        ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-    horizontalAngleMotor.getConfigurator().apply(angleConfig, 0.050);
+    // 水平电机 SparkMax 配置：位置闭环（无重力补偿 kG）
+    SparkMaxConfig horizontalConfig = new SparkMaxConfig();
+    horizontalConfig.smartCurrentLimit((int) Constants.ShooterAngleSupplyCurrentLimit);
+    horizontalConfig.idleMode(com.revrobotics.spark.config.SparkBaseConfig.IdleMode.kBrake);
+    horizontalConfig.inverted(Constants.ShooterHorizontalAngleInverted);
+
+    horizontalConfig.closedLoop.pid(
+        Constants.ShooterHorizontalSparkMaxKP,
+        Constants.ShooterHorizontalSparkMaxKI,
+        Constants.ShooterHorizontalSparkMaxKD,
+        ClosedLoopSlot.kSlot0);
+    horizontalConfig.closedLoop.iZone(Constants.ShooterHorizontalSparkMaxKIZone, ClosedLoopSlot.kSlot0);
+
+    horizontalConfig.encoder.positionConversionFactor(Constants.ShooterHorizontalEncoderToDeg);
+
+    horizontalAngleMotor.configure(horizontalConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // 设置中性模式
     topFlywheelMotor.setNeutralMode(NeutralModeValue.Coast);
     bottomFlywheelMotor.setNeutralMode(NeutralModeValue.Coast);
     verticalAngleMotor.setNeutralMode(NeutralModeValue.Brake);
-    horizontalAngleMotor.setNeutralMode(NeutralModeValue.Brake);
 
     // 初始化时归零
     zeroEncoders();
@@ -95,7 +119,7 @@ public class Shooter {
     topFlywheelMotor.setPosition(0);
     bottomFlywheelMotor.setPosition(0);
     verticalAngleMotor.setPosition(0);
-    horizontalAngleMotor.setPosition(0);
+    horizontalEncoder.setPosition(0);
   }
 
   /** 以相同速度、相反方向驱动两个飞轮（velocity 为上飞轮方向的速度，RPS） */
@@ -136,8 +160,7 @@ public class Shooter {
   public void setHorizontalAngle(double angleDeg) {
     // 找到限位范围内距离当前位置最近的有效角度
     targetHorizontalAngleDeg = findNearestValidHorizontalTarget(angleDeg);
-    double targetRotations = targetHorizontalAngleDeg / Constants.ShooterHorizontalEncoderToDeg;
-    horizontalAngleMotor.setControl(horizontalAngleRequest.withPosition(targetRotations));
+    horizontalAngleController.setSetpoint(targetHorizontalAngleDeg, ControlType.kPosition);
   }
 
   /** 直接给水平电机开环占空比，调方向/测试用 */
@@ -150,7 +173,7 @@ public class Shooter {
   }
 
   public double getHorizontalAngleDeg() {
-    return horizontalAngleMotor.getPosition().getValueAsDouble() * Constants.ShooterHorizontalEncoderToDeg;
+    return horizontalEncoder.getPosition();
   }
 
   public double getTopFlywheelVelocity() {
@@ -182,10 +205,10 @@ public class Shooter {
     horizontalAngleMotor.stopMotor();
   }
 
-  /** 检查四个 TalonFX 是否都正常连接/使能 */
+  /** 检查三个 TalonFX 和一个 SparkMax 是否都正常连接/使能 */
   public boolean areMotorsConnected() {
     return isMotorOK(topFlywheelMotor) && isMotorOK(bottomFlywheelMotor)
-        && isMotorOK(verticalAngleMotor) && isMotorOK(horizontalAngleMotor);
+        && isMotorOK(verticalAngleMotor) && isSparkMaxOK(horizontalAngleMotor);
   }
 
   /**
@@ -228,6 +251,10 @@ public class Shooter {
     return motor.getDeviceEnable().getStatus().isOK();
   }
 
+  private boolean isSparkMaxOK(SparkMax motor) {
+    return motor.getFirmwareVersion() != 0;
+  }
+
   public void putData() {
     SmartDashboard.putNumber("Shooter Target Flywheel Vel", targetFlywheelVelocityRPS);
     SmartDashboard.putNumber("Shooter Top Vel", getTopFlywheelVelocity());
@@ -242,18 +269,18 @@ public class Shooter {
     SmartDashboard.putNumber("Shooter Top Motor Pos", topFlywheelMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Shooter Bottom Motor Pos", bottomFlywheelMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Shooter Vertical Motor Pos", verticalAngleMotor.getPosition().getValueAsDouble());
-    SmartDashboard.putNumber("Shooter Horizontal Motor Pos", horizontalAngleMotor.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("Shooter Horizontal Motor Pos", horizontalEncoder.getPosition());
 
     SmartDashboard.putNumber("Shooter Top Current", topFlywheelMotor.getStatorCurrent().getValueAsDouble());
     SmartDashboard.putNumber("Shooter Bottom Current", bottomFlywheelMotor.getStatorCurrent().getValueAsDouble());
     SmartDashboard.putNumber("Shooter Vertical Current", verticalAngleMotor.getStatorCurrent().getValueAsDouble());
-    SmartDashboard.putNumber("Shooter Horizontal Current", horizontalAngleMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber("Shooter Horizontal Current", horizontalAngleMotor.getOutputCurrent());
 
     // 每个电机的单独连接状态
     SmartDashboard.putBoolean("TopFlywheelOK", isMotorOK(topFlywheelMotor));
     SmartDashboard.putBoolean("BottomFlywheelOK", isMotorOK(bottomFlywheelMotor));
     SmartDashboard.putBoolean("VerticalAngleOK", isMotorOK(verticalAngleMotor));
-    SmartDashboard.putBoolean("HorizontalAngleOK", isMotorOK(horizontalAngleMotor));
+    SmartDashboard.putBoolean("HorizontalAngleOK", isSparkMaxOK(horizontalAngleMotor));
   }
 }
 

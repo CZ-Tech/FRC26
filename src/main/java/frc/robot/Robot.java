@@ -244,44 +244,11 @@ public class Robot extends TimedRobot {
         Constants.toSpeed(gamepadL[1]),
         Constants.toSpeed(gamepadR[1]));
 
-    // // if (gamepad0.getCircleButtonPressed()) {
-    // // lift.toggle();
-    // // }
-    // if (gamepad0.getCrossButton()) {
-    //   intaker.toggle();
-    // } 
-    // if (gamepad0.getPOV() == 0) {
-    //   lift.step(Constants.LiftPosAddStep);
-    // } else if (gamepad0.getPOV() == 180) {
-    //   lift.step(-Constants.LiftPosAddStep);
-    // }
-    // // System.out.println(gamepad0.getPOV());
-    // if (gamepad0.getSquareButtonPressed()) {
-    //   lift.setToStop();
-    // }
-    // // 发射示例绑定（未启用，PID/系数整定后再取消注释）
-    // if (gamepad1.getCrossButton()) {
-    //   shooter.runFlywheels(50); // TODO 替换为实际目标转速（RPS）
-    // } else {
-    //   shooter.stopFlywheels();
-    // }
-    // if (gamepad1.getPOV() == 0) {
-    //   shooter.setVerticalAngle(shooter.getVerticalAngleDeg() + 2.0);
-    // } else if (gamepad1.getPOV() == 180) {
-    //   shooter.setVerticalAngle(shooter.getVerticalAngleDeg() - 2.0);
-    // }
-    // if (gamepad1.getRightX() > 0.5) {
-    //   shooter.setHorizontalAngle(shooter.getHorizontalAngleDeg() + 2.0);
-    // } else if (gamepad1.getRightX() < -0.5) {
-    //   shooter.setHorizontalAngle(shooter.getHorizontalAngleDeg() - 2.0);
-    // }
-    // if (gamepad1.getOptionsButtonPressed()) {
-    //   shooter.zeroEncoders();
-    // }
-    // lift.addPower(0.01 * Constants.zeroIfZero(0.5 * (gamepad0.getL2Axis() + 1.0),
-    // 0.1));
-    // lift.addPower(-0.01 * Constants.zeroIfZero(0.5 * (gamepad0.getR2Axis() +
-    // 1.0), 0.1));
+    if (gamepad0.getL1Button()) {
+      shooter.setFlywheelPower(0.8);
+      transfer.setTurnPower(0.8);
+      transfer.setUpPower(1.0);
+    }
 
   }
 
@@ -390,7 +357,7 @@ public class Robot extends TimedRobot {
     shooter.setVerticalAnglePower(verticalPower);
 
     // 左摇杆 X: 水平电机手动正反转（功率 0.15）
-    double horizontalPower = 0.15 * Constants.zeroIfZero(gamepad0.getLeftX(), 0.1);
+    double horizontalPower = 0.5 * Constants.zeroIfZero(gamepad0.getLeftX(), 0.1);
     shooter.setHorizontalAnglePower(horizontalPower);
   }
 

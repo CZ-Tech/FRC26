@@ -72,6 +72,13 @@ public class Constants {
     public static double ShooterFlywheelVelocityToleranceRPS = 5.0;
     public static double ShooterAngleToleranceDeg            = 1.0;
 
+    // SparkMax 水平角度电机 PID（REVLib 闭环，TODO/FIXME：实车整定）
+    public static double ShooterHorizontalSparkMaxKP = 0.1;
+    public static double ShooterHorizontalSparkMaxKI = 0.0;
+    public static double ShooterHorizontalSparkMaxKD = 0.0;
+    public static double ShooterHorizontalSparkMaxKIZone = 0.0;
+    public static double ShooterHorizontalSparkMaxKFF = 0.0;
+
     public static double goalFieldPosX_wpiBlue = 4.0296;  // meter
     public static double goalFieldPosY_wpiBlue = 4.0346;  // meter
 
