@@ -50,12 +50,12 @@ public class Constants {
 
     // 角度位置闭环 PID/FF + 重力补偿（Slot0，PositionVoltage，TODO/FIXME：实车整定）
     // 说明：使用 PositionVoltage 而不是 MotionMagic；负载不大，靠 kP/kD + kG 抵消重力即可。
-    public static double ShooterAngleKP = 10.0;
+    public static double ShooterAngleKP = 1.0;
     public static double ShooterAngleKI = 0.0;
-    public static double ShooterAngleKD = 0.5;
+    public static double ShooterAngleKD = 0.0;
     public static double ShooterAngleKS = 0.1;
     public static double ShooterAngleKV = 0.0; // 位置环通常不需要 kV
-    public static double ShooterAngleKG = 0.5; // 持续向上的重力补偿电压（TODO/FIXME：实测）
+    public static double ShooterAngleKG = 0.1; // 持续向上的重力补偿电压（TODO/FIXME：实测）
 
     // 编码器→角度系数（TODO/FIXME：按减速比和机械零点标定）
     // 含义：电机转数 × 该系数 = 机构角度（度）
@@ -88,7 +88,15 @@ public class Constants {
 
     // --------------------------- intaker -------------------------
     public static int IntakerUpdownCANID = 40;
-    public static int IntakerTurningCANID = 41;
+    public static int IntakerUpdown2CANID = 41;
+    public static int IntakerTurningCANID = 42;
+    public static int IntakerTurning2CANID = 43;
+
+    // 输出方向（true=反转）
+    public static boolean IntakerUpdownInverted  = false;
+    public static boolean IntakerUpdown2Inverted = true;
+    public static boolean IntakerTurningInverted  = false;
+    public static boolean IntakerTurning2Inverted = true;
 
     public static double IntakerDownPos = 1.241;
     public static double IntakerUpPos = 1.5;
@@ -99,25 +107,25 @@ public class Constants {
     public static int TransferTurnMotor2CANID = 31;
     public static int TransferUpMotorCANID   = 32;
 
-    public static double TransferTurnPower = 0.5;
+    public static double TransferTurnPower = 0.35;
     public static double TransferUpPower   = 0.5;
 
     // --------------------------- 驱动轮参数 -------------------------------------------
     // 左前
-    public static int            DriveChannelLF                =  1;
-    public static int            TurnChannelLF                 =  0;
-    public static int            EncoderPortLF                 =  1; 
+    public static int            DriveChannelLF                =  10;
+    public static int            TurnChannelLF                 =  14;
+    public static int            EncoderPortLF                 =  0; 
     public static double         TurningEncoderOffsetRadiansLF =  -0.4014; // -4.02;
     public static double         DriveGainLF                   =  1;
-    public static MotorDirection TurnPowerSignLF               =  MotorDirection.FORWARD;
+    public static MotorDirection TurnPowerSignLF               =  MotorDirection.REVERSE;
     public static MotorDirection TurnEncoderSignLF             =  MotorDirection.REVERSE;
     public static Translation2d m_lf = new Translation2d(0.55 / 2, 0.55 / 2); // 相对于底盘中心位置
                                                                               // 正的x表示靠前，正的y表示偏左。
 
     // 左后
-    public static int            DriveChannelLB                =  19;
-    public static int            TurnChannelLB                 =  18;
-    public static int            EncoderPortLB                 =  3; 
+    public static int            DriveChannelLB                =  11;
+    public static int            TurnChannelLB                 =  15;
+    public static int            EncoderPortLB                 =  2; 
     public static double         TurningEncoderOffsetRadiansLB = -5.409;  
     public static double         DriveGainLB                   =  1;
     public static MotorDirection TurnPowerSignLB               =  MotorDirection.FORWARD;
@@ -125,9 +133,9 @@ public class Constants {
     public static Translation2d m_lb = new Translation2d(-0.55 / 2, 0.55 / 2);
 
     // 右前
-    public static int            DriveChannelRF                =  3;
-    public static int            TurnChannelRF                 =  2;
-    public static int            EncoderPortRF                 =  2; 
+    public static int            DriveChannelRF                =  12;
+    public static int            TurnChannelRF                 =  16;
+    public static int            EncoderPortRF                 =  1; 
     public static double         TurningEncoderOffsetRadiansRF =  0; // -5.222;  // 2.128
     public static double         DriveGainRF                   =  1;
     public static MotorDirection TurnPowerSignRF               =  MotorDirection.FORWARD;
@@ -135,12 +143,12 @@ public class Constants {
     public static Translation2d m_rf = new Translation2d(0.55 / 2, -0.55 / 2);
 
     // 右后
-    public static int            DriveChannelRB                =  17;
-    public static int            TurnChannelRB                 =  16;
-    public static int            EncoderPortRB                 =  0; 
+    public static int            DriveChannelRB                =  13;
+    public static int            TurnChannelRB                 =  17;
+    public static int            EncoderPortRB                 =  3; 
     public static double         TurningEncoderOffsetRadiansRB = 2.286;// -4.881;
     public static double         DriveGainRB                   =  -1;
-    public static MotorDirection TurnPowerSignRB               =  MotorDirection.REVERSE;
+    public static MotorDirection TurnPowerSignRB               =  MotorDirection.FORWARD;
     public static MotorDirection TurnEncoderSignRB             =  MotorDirection.REVERSE;
     public static Translation2d m_rb = new Translation2d(-0.55 / 2, -0.55 / 2);
     // ----------------------------------------------------------------------------------

@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -19,6 +17,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
@@ -29,14 +28,15 @@ public class Shooter {
   private final SparkMax horizontalAngleMotor;
 
   private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0);
-  private final PositionVoltage verticalAngleRequest = new PositionVoltage(0);
+  private final PIDController verticalPIDController;
   private final SparkClosedLoopController horizontalAngleController;
 
   private final RelativeEncoder horizontalEncoder;
 
   private double targetFlywheelVelocityRPS = 0;
-  private double targetVerticalAngleDeg = 0;
+  private double targetVerticalAngleDeg = Constants.ShooterVerticalInitDeg;
   private double targetHorizontalAngleDeg = 0;
+  private double lastVerticalPIDOutput = 0;
 
   public Shooter() {
     // 初始化三个 TalonFX + 一个 SparkMax（水平角度）
@@ -60,19 +60,20 @@ public class Shooter {
     flywheelConfig.Slot0.kS = Constants.ShooterFlywheelKS;
     flywheelConfig.Slot0.kV = Constants.ShooterFlywheelKV;
 
-    // 角度电机配置：位置闭环 + 重力补偿 kG
+    // 角度电机配置：电流限制 + 方向（PID 由软件闭环处理，重力补偿在 updateVerticalPID() 中叠加）
     TalonFXConfiguration angleConfig = new TalonFXConfiguration();
     angleConfig.CurrentLimits.StatorCurrentLimit = Constants.ShooterAngleStatorCurrentLimit;
     angleConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     angleConfig.CurrentLimits.SupplyCurrentLimit = Constants.ShooterAngleSupplyCurrentLimit;
     angleConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    angleConfig.Slot0.kP = Constants.ShooterAngleKP;
-    angleConfig.Slot0.kI = Constants.ShooterAngleKI;
-    angleConfig.Slot0.kD = Constants.ShooterAngleKD;
-    angleConfig.Slot0.kS = Constants.ShooterAngleKS;
-    angleConfig.Slot0.kV = Constants.ShooterAngleKV;
-    angleConfig.Slot0.kG = Constants.ShooterAngleKG; // 持续向上抵消重力
+    // Slot0 全部置零 — 不使用 TalonFX 内置 PID
+    angleConfig.Slot0.kP = 0;
+    angleConfig.Slot0.kI = 0;
+    angleConfig.Slot0.kD = 0;
+    angleConfig.Slot0.kS = 0;
+    angleConfig.Slot0.kV = 0;
+    angleConfig.Slot0.kG = 0;
 
     // 分别设置反转并应用（两飞轮需要不同的反转）
     flywheelConfig.MotorOutput.Inverted = Constants.ShooterTopFlywheelInverted
@@ -87,6 +88,11 @@ public class Shooter {
     angleConfig.MotorOutput.Inverted = Constants.ShooterVerticalAngleInverted
         ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
     verticalAngleMotor.getConfigurator().apply(angleConfig, 0.050);
+
+    // 初始化软件 PID 控制器（替代 TalonFX 内置 PID）
+    verticalPIDController = new PIDController(
+        Constants.ShooterAngleKP, Constants.ShooterAngleKI, Constants.ShooterAngleKD);
+    verticalPIDController.setTolerance(Constants.ShooterAngleToleranceDeg);
 
     // 水平电机 SparkMax 配置：位置闭环（无重力补偿 kG）
     SparkMaxConfig horizontalConfig = new SparkMaxConfig();
@@ -148,8 +154,23 @@ public class Shooter {
   /** 设置炮台俯仰角度（度），会自动限位 */
   public void setVerticalAngle(double angleDeg) {
     targetVerticalAngleDeg = MathUtil.clamp(angleDeg, Constants.ShooterVerticalMinDeg, Constants.ShooterVerticalMaxDeg);
-    double targetRotations = targetVerticalAngleDeg / Constants.ShooterVerticalEncoderToDeg;
-    verticalAngleMotor.setControl(verticalAngleRequest.withPosition(targetRotations));
+  }
+
+  /** 软件 PID 更新（替代 TalonFX 内置 PositionVoltage 闭环，保留重力补偿） */
+  public void updateVerticalPID() {
+    double currentDeg = getVerticalAngleDeg();
+    double pidOutput = verticalPIDController.calculate(currentDeg, targetVerticalAngleDeg);
+
+    // 重力补偿：恒定向上电压抵消炮台自重
+    double gravityFF = Constants.ShooterAngleKG;
+
+    // 静摩擦前馈（方向跟随 PID 输出）
+    double staticFF = Constants.ShooterAngleKS * Math.signum(pidOutput);
+
+    double output = pidOutput + gravityFF + staticFF;
+    output = MathUtil.clamp(output, -12.0, 12.0);
+    lastVerticalPIDOutput = output;
+    verticalAngleMotor.set(output);
   }
 
   /** 直接给俯仰电机开环占空比，调方向/测试用 */
@@ -275,6 +296,7 @@ public class Shooter {
     SmartDashboard.putNumber("Shooter Top Current", topFlywheelMotor.getStatorCurrent().getValueAsDouble());
     SmartDashboard.putNumber("Shooter Bottom Current", bottomFlywheelMotor.getStatorCurrent().getValueAsDouble());
     SmartDashboard.putNumber("Shooter Vertical Current", verticalAngleMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber("Shooter Vertical PID Output", lastVerticalPIDOutput);
     SmartDashboard.putNumber("Shooter Horizontal Current", horizontalAngleMotor.getOutputCurrent());
 
     // 每个电机的单独连接状态

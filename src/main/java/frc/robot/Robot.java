@@ -183,6 +183,7 @@ public class Robot extends TimedRobot {
     // lift.putMotorPosition();
     intaker.putLog();
     shooter.putData();
+    shooter.updateVerticalPID();
     transfer.putLog();
   }
 
@@ -246,11 +247,11 @@ public class Robot extends TimedRobot {
         Constants.toSpeed(gamepadL[1]),
         Constants.toSpeed(gamepadR[1]));
 
-    if (gamepad0.getL1Button()) {
-      shooter.setFlywheelPower(0.8);
-      transfer.setTurnPower(0.8);
-      transfer.setUpPower(1.0);
-    }
+    // if (gamepad0.getL1Button()) {
+    //   shooter.setFlywheelPower(0.8);
+    //   transfer.setTurnPower(0.8);
+    //   transfer.setUpPower(1.0);
+    // }
 
   }
 
@@ -282,9 +283,16 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    shooterTest();
+    // shooterTest();
     // swerveTest();
-    // transferTest();
+    transferTest();
+    // intakerTest();
+  }
+
+  public void intakerTest() {
+    double power2 = Constants.zeroIfZero((gamepad0.getR2Axis() + 1) / 2 * -0.6, 0.05);
+    intaker.manualUpDown((gamepad0.getL2Axis() + 1) / 2 * 0.6);
+    if (power2 != 0.0) intaker.manualUpDown(power2);
   }
 
   public void swerveTest() {
@@ -309,7 +317,6 @@ public class Robot extends TimedRobot {
     // =============================
 
     // 电机连接状态
-    SmartDashboard.putBoolean("Shooter MotorsOK", shooter.areMotorsConnected());
     SmartDashboard.putBoolean("Shooter FlywheelAtTarget", shooter.isFlywheelAtTarget());
     SmartDashboard.putBoolean("Shooter VerticalAtTarget", shooter.isVerticalAtTarget());
     SmartDashboard.putBoolean("Shooter HorizontalAtTarget", shooter.isHorizontalAtTarget());
@@ -368,9 +375,6 @@ public class Robot extends TimedRobot {
     // =============================
 
     transfer.putLog();
-
-    // 电机连接状态
-    SmartDashboard.putBoolean("Transfer MotorsOK", transfer.areMotorsConnected());
 
     // --- 拨球滚轮测试 ---
     // Cross: 开始拨球

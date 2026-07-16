@@ -3,8 +3,11 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,7 +22,6 @@ public class Transfer {
     // 拨球滚轮电机（两个 SparkMax）
     private final SparkMax turnMotor1;
     private final SparkMax turnMotor2;
-    private final RelativeEncoder turnEncoder1;
 
     // 上传电机（一个 TalonFX）
     private final TalonFX upMotor;
@@ -32,7 +34,18 @@ public class Transfer {
         // --- 拨球滚轮电机（SparkMax）---
         turnMotor1 = new SparkMax(Constants.TransferTurnMotor1CANID, SparkLowLevel.MotorType.kBrushless);
         turnMotor2 = new SparkMax(Constants.TransferTurnMotor2CANID, SparkLowLevel.MotorType.kBrushless);
-        turnEncoder1 = turnMotor1.getEncoder();
+
+
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.inverted(true);
+
+        turnMotor1.configure(
+                config,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters);
+
+        config.inverted(false);
+        turnMotor2.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // --- 上传电机（TalonFX）---
         upMotor = new TalonFX(Constants.TransferUpMotorCANID);
@@ -162,7 +175,6 @@ public class Transfer {
 
     public void putLog() {
         // 拨球滚轮
-        SmartDashboard.putNumber("Transfer Turn1 Vel", turnEncoder1.getVelocity());
         SmartDashboard.putNumber("Transfer Turn1 Current", turnMotor1.getOutputCurrent());
         SmartDashboard.putNumber("Transfer Turn1 Output", turnMotor1.getAppliedOutput());
         SmartDashboard.putNumber("Transfer Turn2 Current", turnMotor2.getOutputCurrent());
