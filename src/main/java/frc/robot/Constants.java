@@ -53,9 +53,9 @@ public class Constants {
     public static double ShooterAngleKP = 1.0;
     public static double ShooterAngleKI = 0.0;
     public static double ShooterAngleKD = 0.0;
-    public static double ShooterAngleKS = 0.1;
+    public static double ShooterAngleKS = 0.0;
     public static double ShooterAngleKV = 0.0; // 位置环通常不需要 kV
-    public static double ShooterAngleKG = 0.1; // 持续向上的重力补偿电压（TODO/FIXME：实测）
+    public static double ShooterAngleKG = 0.0; // 持续向上的重力补偿电压（TODO/FIXME：实测）
 
     // 编码器→角度系数（TODO/FIXME：按减速比和机械零点标定）
     // 含义：电机转数 × 该系数 = 机构角度（度）
@@ -98,8 +98,8 @@ public class Constants {
     public static boolean IntakerTurningInverted  = false;
     public static boolean IntakerTurning2Inverted = true;
 
-    public static double IntakerDownPos = 1.241;
-    public static double IntakerUpPos = 1.5;
+    public static double IntakerDownPos = -16;
+    public static double IntakerUpPos = 0;
     public static double IntakerRunPower = -0.5;
 
     // --------------------------- transfer -------------------------

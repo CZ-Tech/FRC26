@@ -183,7 +183,7 @@ public class Robot extends TimedRobot {
     // lift.putMotorPosition();
     intaker.putLog();
     shooter.putData();
-    shooter.updateVerticalPID();
+    // shooter.updateVerticalPID();
     transfer.putLog();
   }
 
@@ -285,14 +285,36 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
     // shooterTest();
     // swerveTest();
-    transferTest();
-    // intakerTest();
+    // transferTest();
+    intakerTest();
   }
 
+  boolean isAutoMoving = false;
   public void intakerTest() {
+    double power1 = Constants.zeroIfZero((gamepad0.getL2Axis() + 1) / 2 * 0.6, 0.05);
     double power2 = Constants.zeroIfZero((gamepad0.getR2Axis() + 1) / 2 * -0.6, 0.05);
-    intaker.manualUpDown((gamepad0.getL2Axis() + 1) / 2 * 0.6);
-    if (power2 != 0.0) intaker.manualUpDown(power2);
+    if (power2 != 0.0 || !isAutoMoving) {
+      intaker.manualUpDown(power1);
+      isAutoMoving = false;
+    }
+    if (power2 != 0.0) {
+      intaker.manualUpDown(power2);
+      isAutoMoving = false;
+    }
+
+    if (gamepad0.getTriangleButtonPressed()) {
+      intaker.intake();
+    }
+    if (gamepad0.getTriangleButtonReleased()) {
+      intaker.stopIntake();
+    }
+    if (gamepad0.getPOV() == 0) {
+      isAutoMoving = true;
+      intaker.up();
+    } else if (gamepad0.getPOV() == 180) {
+      isAutoMoving = true;
+      intaker.down();
+    }
   }
 
   public void swerveTest() {
@@ -368,6 +390,9 @@ public class Robot extends TimedRobot {
     shooter.setHorizontalAnglePower(horizontalPower);
   }
 
+
+  boolean transferUping = false;
+
   public void transferTest() {
     // =============================
     // Transfer 手动测试（进入 Test 模式）
@@ -392,28 +417,34 @@ public class Robot extends TimedRobot {
 
     // --- 上传电机测试 ---
     // Triangle: 开始上传
-    if (gamepad0.getTriangleButton()) {
-      transfer.up();
-    }
-    // PS: 停止上传
-    if (gamepad0.getPSButton()) {
-      transfer.stopUp();
-    }
+    if (gamepad0.getTriangleButtonPressed()) {
+      if (!transferUping) {
+        transferUping = true;
+        transfer.up();
+      } else {
+        transferUping = false;
+        transfer.stopUp();
+       }
+    } 
 
-    // --- 手动开环测试 ---
-    // L2: 滚轮功率（0 到 1）
-    double turnPower = (gamepad0.getL2Axis() + 1.0) / 2.0;
-    transfer.setTurnPower(turnPower);
 
-    // R2: 上传功率（0 到 1）
-    double upPower = (gamepad0.getR2Axis() + 1.0) / 2.0;
-    transfer.setUpPower(upPower);
+    if (!transferUping) {
+      // --- 手动开环测试 ---
+      // L2: 滚轮功率（0 到 1）
+      double turnPower = (gamepad0.getL2Axis() + 1.0) / 2.0;
+      transfer.setTurnPower(turnPower);
+
+      // R2: 上传功率（0 到 1）
+      double upPower = (gamepad0.getR2Axis() + 1.0) / 2.0;
+      transfer.setUpPower(upPower);
+    }
 
     // Options: 全部急停
     if (gamepad0.getOptionsButtonPressed()) {
       transfer.stopAll();
     }
   }
+  
 
   @Override
   public void testExit() {

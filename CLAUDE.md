@@ -59,3 +59,5 @@ Minimal fixed-rate background-loop utility (not WPILib's `Tracer`): a `Thread` t
 - `getTurnMotorStatus()` in `SwerveModule` currently queries `m_driveMotor` (likely a copy-paste bug) — be aware if touching motor-health reporting.
 - Odometry runs on its own thread; anything that reads/writes `m_poseEstimator` or the gyro from outside `ChassisSwerveOdo` must respect the `synchronized` block already there.
 - Several subsystems (`Intaker`, `Shooter`, `MagicIntaker`, `LiftUp`) exist in `subsystems/` but are **commented out / unused** in `Robot.java` — treat them as work-in-progress, not active.
+
+最后请说中文

@@ -52,9 +52,9 @@ public class MagicIntaker {
 
         // 1. PID 参数 (用来追踪 Motion Magic 生成的曲线)
         // 注意：因为没有前馈，这里的 kP 需要稍微给够一点，以抵抗重力造成的稳态误差
-        fxConfigs.Slot0.kP = 10.0;
+        fxConfigs.Slot0.kP = 20.0;
         fxConfigs.Slot0.kI = 0.0; // 如果到位后机构往下掉，可以加一点点 kI 配合 kIZone
-        fxConfigs.Slot0.kD = 0.5; // 给一点 D 可以抑制抖动
+        fxConfigs.Slot0.kD = 0.0; // 给一点 D 可以抑制抖动
         fxConfigs.Slot0.kS = 0.1; // 克服静摩擦的最小电压
         fxConfigs.Slot0.kV = 0.12;
 

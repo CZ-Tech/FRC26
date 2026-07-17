@@ -121,11 +121,11 @@ public class Shooter {
     verticalAngleMotor.setPosition(Constants.ShooterVerticalInitDeg / Constants.ShooterVerticalEncoderToDeg);
   }
 
-  /** 把四个电机的编码器都重置为 0 */
+  /** 把四个电机的编码器都重置 */
   public void zeroEncoders() {
     topFlywheelMotor.setPosition(0);
     bottomFlywheelMotor.setPosition(0);
-    verticalAngleMotor.setPosition(0);
+    verticalAngleMotor.setPosition(Constants.ShooterVerticalInitDeg / Constants.ShooterVerticalEncoderToDeg);
     horizontalEncoder.setPosition(0);
   }
 
