@@ -60,8 +60,8 @@ public class MagicIntaker {
 
         // 2. Motion Magic (梯形轨迹) 参数配置
         // 这里的单位默认是 RPS (Rotations Per Second, 每秒圈数)
-        fxConfigs.MotionMagic.MotionMagicCruiseVelocity = 5; // 巡航速度：机构运行时的最大速度 (需根据你的减速比调)
-        fxConfigs.MotionMagic.MotionMagicAcceleration = 5;   // 加速度：到达巡航速度的快慢 (越大越猛)
+        fxConfigs.MotionMagic.MotionMagicCruiseVelocity = 15; // 巡航速度：机构运行时的最大速度 (需根据你的减速比调)
+        fxConfigs.MotionMagic.MotionMagicAcceleration = 20;   // 加速度：到达巡航速度的快慢 (越大越猛)
         fxConfigs.MotionMagic.MotionMagicJerk = 0;            // 设为 0 就是标准梯形曲线；如果还觉得起步/刹车太猛，可以给个 100~400 (S型曲线)
 
         fxConfigs.MotorOutput.Inverted = Constants.IntakerUpdownInverted
@@ -126,6 +126,19 @@ public class MagicIntaker {
     public void intake() {
         turningMotor1.set(Constants.IntakerRunPower);
         turningMotor2.set(Constants.IntakerRunPower);
+    }
+
+    public void intake(boolean reverse) {
+        if (reverse) {
+            outTake();
+        } else {
+            intake();
+        }
+    }
+
+    public void outTake() {
+        turningMotor1.set(-Constants.IntakerRunPower);
+        turningMotor2.set(-Constants.IntakerRunPower);
     }
 
     /*

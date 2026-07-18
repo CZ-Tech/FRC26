@@ -50,7 +50,7 @@ public class Constants {
 
     // 角度位置闭环 PID/FF + 重力补偿（Slot0，PositionVoltage，TODO/FIXME：实车整定）
     // 说明：使用 PositionVoltage 而不是 MotionMagic；负载不大，靠 kP/kD + kG 抵消重力即可。
-    public static double ShooterAngleKP = 1.0;
+    public static double ShooterAngleKP = 5.0;
     public static double ShooterAngleKI = 0.0;
     public static double ShooterAngleKD = 0.0;
     public static double ShooterAngleKS = 0.0;
@@ -66,8 +66,8 @@ public class Constants {
     public static double ShooterVerticalMinDeg   = 16.620761;
     public static double ShooterVerticalMaxDeg   =  75.0;
     public static double ShooterVerticalInitDeg = ShooterVerticalMinDeg;  // 竖直方向调节电机初始化时应处在的角度
-    public static double ShooterHorizontalMinDeg = -270.0; // 水平旋转硬限位：从零点向左最多 270°
-    public static double ShooterHorizontalMaxDeg =  270.0; // 水平旋转硬限位：从零点向右最多 270°
+    public static double ShooterHorizontalMinDeg = -180.0; // 水平旋转硬限位：从零点向左最多 270°
+    public static double ShooterHorizontalMaxDeg =  180.0; // 水平旋转硬限位：从零点向右最多 270°
 
     // 公差（TODO/FIXME：实车整定）
     public static double ShooterFlywheelVelocityToleranceRPS = 5.0;
@@ -85,6 +85,36 @@ public class Constants {
 
     public static double FieldWidth = 8.069;    // meter
     public static double FieldLength = 16.541;  // meter
+
+    // --------------------------- Shooter Limelight 环几何参数 -------------------------
+    // 环中心位于机器人地面投影中心上方 523mm，中线上距中心靠后 123.868mm
+    // 环半径 150mm，环平面为水平面
+    // TODO/FIXME: 用 CAD 数据验证这些参数
+
+    /** 环中心 forward 偏移 (m)，负值 = 机器人中心后方 */
+    public static double ShooterLimelightRingCenterX = -0.123868;
+    /** 环中心 side 偏移 (m)，0 = 中线上 */
+    public static double ShooterLimelightRingCenterY = 0.0;
+    /** 环中心高度 (m)，相对地面投影中心 */
+    public static double ShooterLimelightRingCenterZ = 0.523;
+    /** 环半径 (m) */
+    public static double ShooterLimelightRingRadius = 0.150;
+    /** 角度零点偏移 (deg)，用于校正编码器零位与机械零位的偏差 */
+    public static double ShooterLimelightAngleOffsetDeg = 0.0;
+
+    // --- Shooter Limelight 固定安装姿态（不随环旋转）---
+    /** Limelight 安装姿态 Roll (deg)，绕 forward 轴旋转 */
+    public static double ShooterLimelightFixedRollDeg = 0.0;
+    /** Limelight 安装姿态 Pitch (deg)，上仰为正 */
+    public static double ShooterLimelightFixedPitchDeg = 25.0;
+    /** Limelight 安装姿态 Yaw (deg)，左偏为正 */
+    public static double ShooterLimelightFixedYawDeg = 0.0;
+
+    // --- Shooter 自瞄参数 ---
+    /** 球门开口中心高度 (m)，相对地面（TODO/FIXME: 根据实际场地测量） */
+    public static double ShooterAutoAimGoalHeightMeters = 0.0;
+    /** 发射机构 pivot 高度 (m)，与 Limelight 等高（TODO/FIXME: 根据 CAD 确认） */
+    public static double ShooterAutoAimShooterHeightMeters = 0.523;
 
     // --------------------------- intaker -------------------------
     public static int IntakerUpdownCANID = 40;
@@ -115,7 +145,7 @@ public class Constants {
     public static int            DriveChannelLF                =  10;
     public static int            TurnChannelLF                 =  14;
     public static int            EncoderPortLF                 =  0; 
-    public static double         TurningEncoderOffsetRadiansLF =  -0.4014; // -4.02;
+    public static double         TurningEncoderOffsetRadiansLF =  2.565634; // -4.02;
     public static double         DriveGainLF                   =  1;
     public static MotorDirection TurnPowerSignLF               =  MotorDirection.REVERSE;
     public static MotorDirection TurnEncoderSignLF             =  MotorDirection.REVERSE;
@@ -126,7 +156,7 @@ public class Constants {
     public static int            DriveChannelLB                =  11;
     public static int            TurnChannelLB                 =  15;
     public static int            EncoderPortLB                 =  2; 
-    public static double         TurningEncoderOffsetRadiansLB = -5.409;  
+    public static double         TurningEncoderOffsetRadiansLB =  -2.251475;  
     public static double         DriveGainLB                   =  1;
     public static MotorDirection TurnPowerSignLB               =  MotorDirection.FORWARD;
     public static MotorDirection TurnEncoderSignLB             =  MotorDirection.REVERSE;
@@ -136,7 +166,7 @@ public class Constants {
     public static int            DriveChannelRF                =  12;
     public static int            TurnChannelRF                 =  16;
     public static int            EncoderPortRF                 =  1; 
-    public static double         TurningEncoderOffsetRadiansRF =  0; // -5.222;  // 2.128
+    public static double         TurningEncoderOffsetRadiansRF =  -0.029147; // -5.222;  // 2.128
     public static double         DriveGainRF                   =  1;
     public static MotorDirection TurnPowerSignRF               =  MotorDirection.FORWARD;
     public static MotorDirection TurnEncoderSignRF             =  MotorDirection.REVERSE;
@@ -146,7 +176,7 @@ public class Constants {
     public static int            DriveChannelRB                =  13;
     public static int            TurnChannelRB                 =  17;
     public static int            EncoderPortRB                 =  3; 
-    public static double         TurningEncoderOffsetRadiansRB = 2.286;// -4.881;
+    public static double         TurningEncoderOffsetRadiansRB =  2.286;// -4.881;
     public static double         DriveGainRB                   =  -1;
     public static MotorDirection TurnPowerSignRB               =  MotorDirection.FORWARD;
     public static MotorDirection TurnEncoderSignRB             =  MotorDirection.REVERSE;

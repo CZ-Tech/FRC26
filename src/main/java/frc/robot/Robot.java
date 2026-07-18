@@ -182,8 +182,11 @@ public class Robot extends TimedRobot {
 
     // lift.putMotorPosition();
     intaker.putLog();
+    // 自瞄：根据场地坐标始终跟踪目标角度
+    // if (odo.isReady()) {
+    //   shooter.autoAim(odo.getBotPoseEstimate_wpiBlue(), alliance);
+    // }
     shooter.putData();
-    // shooter.updateVerticalPID();
     transfer.putLog();
   }
 
@@ -243,16 +246,39 @@ public class Robot extends TimedRobot {
         -Constants.zeroIfZero(gamepad0.getRightX(), Constants.joystickDummyIgnore) };
 
     driveTrain.driveRobotFieldCentricLocalAlliance(
+    // driveTrain.driveRobot(
         Constants.toSpeed(gamepadL[0]),
         Constants.toSpeed(gamepadL[1]),
         Constants.toSpeed(gamepadR[1]));
 
-    // if (gamepad0.getL1Button()) {
-    //   shooter.setFlywheelPower(0.8);
-    //   transfer.setTurnPower(0.8);
-    //   transfer.setUpPower(1.0);
-    // }
+    if ((gamepad0.getL2Axis() + 1) / 2 > 0.5) {
+      shooter.setFlywheelPower(0.6);
+      transfer.turn();
+      transfer.up();
+    }
 
+    if (gamepad0.getL1Button() && gamepad0.getSquareButton()) {
+      shooter.setFlywheelPower(0.2);
+    } else if (gamepad0.getSquareButton()) {
+      shooter.setFlywheelPower(0.6);
+    }
+
+    if (gamepad0.getL1Button() && gamepad0.getCircleButton()) {
+      transfer.turnReverse();
+    } else if (gamepad0.getCircleButton()) {
+      transfer.turn();
+    }
+
+    if (gamepad0.getL1Button() && (gamepad0.getR2Axis() + 1) / 2 > 0.5) {
+      intaker.intake(true);
+    } else if ((gamepad0.getR2Axis() + 1) / 2 > 0.5) {
+      intaker.intake();
+    }
+
+    if (gamepad0.getR1Button()) {
+      intaker.toggle();
+    }
+    
   }
 
   /** This function is called once when the robot is disabled. */
@@ -283,10 +309,10 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    // shooterTest();
+    shooterTest();
     // swerveTest();
     // transferTest();
-    intakerTest();
+    // intakerTest();
   }
 
   boolean isAutoMoving = false;
@@ -369,6 +395,10 @@ public class Robot extends TimedRobot {
       shooter.setHorizontalAngle(shooter.getHorizontalAngleDeg() - 2.0);
     }
 
+    if (gamepad0.getL1ButtonPressed()) {
+      shooter.setVerticalAngle(Constants.ShooterVerticalMinDeg);
+    }
+
     // Square: 编码器归零
     if (gamepad0.getSquareButtonPressed()) {
       shooter.zeroEncoders();
@@ -379,15 +409,15 @@ public class Robot extends TimedRobot {
       shooter.stopAll();
     }
 
-    // --- 手动开环测试（微功率，安全）---
-    // L2 / R2: 俯仰电机手动正反转（功率 0.15）
-    double verticalPower = 0.15 * (0.5 * (gamepad0.getL2Axis() + 1.0))
-        - 0.15 * (0.5 * (gamepad0.getR2Axis() + 1.0));
-    shooter.setVerticalAnglePower(verticalPower);
+    // // --- 手动开环测试（微功率，安全）---
+    // // L2 / R2: 俯仰电机手动正反转（功率 0.15）
+    // double verticalPower = 0.15 * (0.5 * (gamepad0.getL2Axis() + 1.0))
+    //     - 0.15 * (0.5 * (gamepad0.getR2Axis() + 1.0));
+    // shooter.setVerticalAnglePower(verticalPower);
 
-    // 左摇杆 X: 水平电机手动正反转（功率 0.15）
-    double horizontalPower = 0.5 * Constants.zeroIfZero(gamepad0.getLeftX(), 0.1);
-    shooter.setHorizontalAnglePower(horizontalPower);
+    // // 左摇杆 X: 水平电机手动正反转（功率 0.15）
+    // double horizontalPower = 0.5 * Constants.zeroIfZero(gamepad0.getLeftX(), 0.1);
+    // shooter.setHorizontalAnglePower(horizontalPower);
   }
 
 
