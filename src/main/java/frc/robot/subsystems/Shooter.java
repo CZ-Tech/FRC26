@@ -104,6 +104,8 @@ public class Shooter {
         Constants.ShooterHorizontalSparkMaxKD,
         ClosedLoopSlot.kSlot0);
     horizontalConfig.closedLoop.iZone(Constants.ShooterHorizontalSparkMaxKIZone, ClosedLoopSlot.kSlot0);
+    horizontalConfig.closedLoop.maxOutput(
+        Constants.ShooterHorizontalMaxPower, ClosedLoopSlot.kSlot0);
 
     horizontalConfig.encoder.positionConversionFactor(Constants.ShooterHorizontalEncoderToDeg);
 
@@ -172,9 +174,10 @@ public class Shooter {
     horizontalAngleController.setSetpoint(targetHorizontalAngleDeg, ControlType.kPosition);
   }
 
-  /** 直接给水平电机开环占空比，调方向/测试用 */
+  /** 直接给水平电机开环占空比，调方向/测试用，自动限幅 */
   public void setHorizontalAnglePower(double power) {
-    horizontalAngleMotor.set(power);
+    horizontalAngleMotor.set(
+        MathUtil.clamp(power, -Constants.ShooterHorizontalMaxPower, Constants.ShooterHorizontalMaxPower));
   }
 
   public double getVerticalAngleDeg() {
@@ -212,6 +215,7 @@ public class Shooter {
     bottomFlywheelMotor.stopMotor();
     verticalAngleMotor.stopMotor();
     horizontalAngleMotor.stopMotor();
+    setVerticalAngle(Constants.ShooterVerticalMinDeg);
   }
 
   /** 检查三个 TalonFX 和一个 SparkMax 是否都正常连接/使能 */
@@ -275,6 +279,21 @@ public class Shooter {
     var angles = autoAim.calculate(robotPose, alliance);
     setHorizontalAngle(angles.horizontalAngleDeg());
     setVerticalAngle(angles.verticalAngleDeg());
+  }
+
+  /**
+   * 将炮塔水平转向己方联盟墙（垂直角度保持不变）。
+   *
+   * <p>蓝方面朝 X=0 方向，红方面朝 X=FieldLength 方向。
+   * 垂直角度由调用方单独管理，本方法不修改。
+   *
+   * @param robotPose 机器人当前场地位姿（wpiBlue）
+   * @param alliance  当前联盟
+   */
+  public void faceAllianceWall(Pose2d robotPose, Alliance alliance) {
+    double horizontalAngle = autoAim.calculateWallFaceAngle(robotPose, alliance);
+    setHorizontalAngle(horizontalAngle);
+    setVerticalAngle(Constants.ShooterVerticalMaxDeg);
   }
 
   public void putData() {

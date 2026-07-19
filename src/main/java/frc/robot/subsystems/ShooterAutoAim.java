@@ -62,6 +62,28 @@ public class ShooterAutoAim {
         return new TargetAngles(horizontalAngle, verticalAngle);
     }
 
+    /**
+     * 计算机器人炮塔面朝己方联盟墙所需的水平角度。
+     *
+     * <p>己方联盟墙是垂直于 X 轴的竖直平面：
+     * <ul>
+     *   <li>蓝方联盟墙位于 X=0，面朝方向为绝对朝向 180°（指向 -X）</li>
+     *   <li>红方联盟墙位于 X={@link Constants#FieldLength}，面朝方向为绝对朝向 0°（指向 +X）</li>
+     * </ul>
+     *
+     * <p>纯数学计算，不包含垂直角度。
+     *
+     * @param robotPose 机器人在场上的当前位姿（wpiBlue 坐标系）
+     * @param alliance  当前联盟（Blue 或 Red）
+     * @return 炮塔需要旋转的水平角度（度），归一化到 (-180°, 180°]
+     */
+    public double calculateWallFaceAngle(Pose2d robotPose, Alliance alliance) {
+        // 蓝方面朝 -X（180°），红方面朝 +X（0°）
+        double targetHeading = (alliance == Alliance.Red) ? 0.0 : 180.0;
+        double robotHeading = robotPose.getRotation().getDegrees();
+        return normalizeAngle(targetHeading - robotHeading);
+    }
+
     /** 归一化角度到 (-180°, 180°] */
     private static double normalizeAngle(double angle) {
         while (angle > 180.0) {

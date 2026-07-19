@@ -64,10 +64,13 @@ public class Constants {
 
     // 角度限位（TODO/FIXME：按机械结构实测）
     public static double ShooterVerticalMinDeg   = 16.620761;
-    public static double ShooterVerticalMaxDeg   =  75.0;
-    public static double ShooterVerticalInitDeg = ShooterVerticalMinDeg;  // 竖直方向调节电机初始化时应处在的角度
-    public static double ShooterHorizontalMinDeg = -180.0; // 水平旋转硬限位：从零点向左最多 270°
-    public static double ShooterHorizontalMaxDeg =  180.0; // 水平旋转硬限位：从零点向右最多 270°
+    public static double ShooterVerticalMaxDeg   =  75.0 - 2.0;
+    public static double ShooterVerticalInitDeg = ShooterVerticalMinDeg - 2.0;  // 竖直方向调节电机初始化时应处在的角度
+    public static double ShooterHorizontalMinDeg = -170.0; // 水平旋转硬限位(从零点向左)
+    public static double ShooterHorizontalMaxDeg =  170.0; // 水平旋转硬限位从(零点向右)
+
+    /** 水平旋转电机最大输出功率（0.0 ~ 1.0），限制闭环 PID 输出和开环控制 */
+    public static double ShooterHorizontalMaxPower = 0.3;
 
     // 公差（TODO/FIXME：实车整定）
     public static double ShooterFlywheelVelocityToleranceRPS = 5.0;

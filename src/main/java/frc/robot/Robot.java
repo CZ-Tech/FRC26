@@ -278,6 +278,8 @@ public class Robot extends TimedRobot {
     if (gamepad0.getR1Button()) {
       intaker.toggle();
     }
+
+    
     
   }
 
