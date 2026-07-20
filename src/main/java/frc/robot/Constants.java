@@ -6,9 +6,9 @@ import frc.robot.lib.SwerveModule.MotorDirection;
 public class Constants {
     public static final double kPModuleTurningController = 0.2;
     public static final double kPModuleDriveController = 0.001;
-    public static final double SpeedFactor = 0.2;  // FIXME (调试限速用)速度输出将乘这个数字，赛场上应设为1
+    public static final double SpeedFactor = 1;  // FIXME (调试限速用)速度输出将乘这个数字，赛场上应设为1
     
-    public static final double kMaxSpeedMetersPerSecond = 13;  // 车辆实际最大速度，输出功率为目标速度与最大速度之比，即越大越慢
+    public static final double kMaxSpeedMetersPerSecond = 10;  // 车辆实际最大速度，输出功率为目标速度与最大速度之比，即越大越慢
     public static final double MaxTurnSpeedRadPerSecond = 4 * Math.PI;
     // TODO: 'EncoderDistancePerPulse' should be calculated based on the gearing and wheel diameter
     public static final double kDriveEncoderDistancePerPulse = 0.0700D; //0.947
@@ -66,8 +66,8 @@ public class Constants {
     public static double ShooterVerticalMinDeg   = 16.620761;
     public static double ShooterVerticalMaxDeg   =  75.0 - 2.0;
     public static double ShooterVerticalInitDeg = ShooterVerticalMinDeg - 2.0;  // 竖直方向调节电机初始化时应处在的角度
-    public static double ShooterHorizontalMinDeg = -170.0; // 水平旋转硬限位(从零点向左)
-    public static double ShooterHorizontalMaxDeg =  170.0; // 水平旋转硬限位从(零点向右)
+    public static double ShooterHorizontalMinDeg = -170.0; // 水平旋转硬限位(从零点向右)
+    public static double ShooterHorizontalMaxDeg =  170.0; // 水平旋转硬限位从(零点向左)
 
     /** 水平旋转电机最大输出功率（0.0 ~ 1.0），限制闭环 PID 输出和开环控制 */
     public static double ShooterHorizontalMaxPower = 0.3;
@@ -77,11 +77,11 @@ public class Constants {
     public static double ShooterAngleToleranceDeg            = 1.0;
 
     // 水平角度电机 PID（SparkMax REVLib 位置闭环，TODO/FIXME：实车整定）
-    public static double ShooterHorizontalAngleKP = 7;
+    public static double ShooterHorizontalAngleKP = 5;
     public static double ShooterHorizontalAngleKI = 0.0;
-    public static double ShooterHorizontalAngleKD = 0.1;
+    public static double ShooterHorizontalAngleKD = 0.0;
     public static double ShooterHorizontalAngleKIZone = 0.0;
-    public static double ShooterHorizontalAngleKFF = 0.0;
+    public static double ShooterHorizontalAngleKFF = 0.3;
 
     public static double goalFieldPosX_wpiBlue = 4.0296;  // meter
     public static double goalFieldPosY_wpiBlue = 4.0346;  // meter
@@ -115,7 +115,7 @@ public class Constants {
 
     // --- Shooter 自瞄参数 ---
     /** 球门开口中心高度 (m)，相对地面（TODO/FIXME: 根据实际场地测量） */
-    public static double ShooterAutoAimGoalHeightMeters = 0.0;
+    public static double ShooterAutoAimGoalHeightMeters = 1.8;
     /** 发射机构 pivot 高度 (m)，与 Limelight 等高（TODO/FIXME: 根据 CAD 确认） */
     public static double ShooterAutoAimShooterHeightMeters = 0.523;
 
@@ -197,7 +197,18 @@ public class Constants {
     public static String LLNameFront = "limelight";
     public static String LLNameLeft  = "limelight-left";
     public static String LLNameRight = "limelight-right";
-
+    public static double LimelightLXOffset  = -0.241;  // Forward offset (meters)
+    public static double LimelightLYOffset  = -0.108;  // Side offset (meters)
+    public static double LimelightLZOffset  = 0.527;  // Height offset (meters)
+    public static double LimelightLRollDeg  = 0.0;  // Roll (degrees)（像方向盘那么转）
+    public static double LimelightLPitchDeg = 45.0; // Pitch (degrees)（俯仰角）
+    public static double LimelightLYawDeg   = 90;  // Yaw (degrees)（在水平面旋转，左加右减）
+    public static double LimelightRXOffset  = -0.241;  // Forward offset (meters)
+    public static double LimelightRYOffset  = 0.115;  // Side offset (meters)
+    public static double LimelightRZOffset  = 0.527;  // Height offset (meters)
+    public static double LimelightRRollDeg  = 0.0;  // Roll (degrees)（像方向盘那么转）
+    public static double LimelightRPitchDeg = 45.0; // Pitch (degrees)（俯仰角）
+    public static double LimelightRYawDeg   = -90;  // Yaw (degrees)（在水平面旋转，左加右减）
 
 
     public static double toPower(double speed) {

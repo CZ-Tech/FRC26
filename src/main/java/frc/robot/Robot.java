@@ -74,6 +74,23 @@ public class Robot extends TimedRobot {
     LimelightHelpers.setupPortForwardingUSB(0); // First camera
     LimelightHelpers.setupPortForwardingUSB(1); // Second camera
 
+    LimelightHelpers.setCameraPose_RobotSpace(
+                Constants.LLNameLeft,
+                Constants.LimelightLXOffset, 
+                Constants.LimelightLYOffset, 
+                Constants.LimelightLZOffset,
+                Constants.LimelightLRollDeg,
+                Constants.LimelightLPitchDeg,
+                Constants.LimelightLYawDeg);
+    LimelightHelpers.setCameraPose_RobotSpace(
+                Constants.LLNameRight,
+                Constants.LimelightRXOffset, 
+                Constants.LimelightRYOffset, 
+                Constants.LimelightRZOffset,
+                Constants.LimelightRRollDeg,
+                Constants.LimelightRPitchDeg,
+                Constants.LimelightRYawDeg);
+
     CameraServer.startAutomaticCapture();
 
     // // Set a custom crop window for improved performance 设置自定义裁剪窗口以提高性能 (-1 to 1
@@ -162,12 +179,17 @@ public class Robot extends TimedRobot {
 
     driveTrain.putMotorStatus(); // 发布单个电机状态到 SmartDashboard
 
-    if (gamepad0.getOptionsButtonPressed() && gamepad0.getCreateButton()) {
+    if (gamepad0.getOptionsButton() && gamepad0.getCreateButton()) {
       driveTrain.setNowForward();
     }
     
     fieldpos.setRobotPose(odo.getBotPoseEstimate_wpiBlue());
     SmartDashboard.putData("FieldPos", fieldpos);
+
+    SmartDashboard.putNumber("LLFrontTagCount", odo.getFrontTagCount());
+    SmartDashboard.putNumber("LLLeftTagCount", odo.getLeftTagCount());
+    SmartDashboard.putNumber("LLRightTagCount", odo.getRightTagCount());
+
 
     driveTrain.putWheelHeadingDeg();
     shooter.putData();
@@ -194,8 +216,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     autoCommand = auto.getAuto(); // 开赛前再同步一次选项
-    if (autoCommand != null)
-      CommandScheduler.getInstance().schedule(autoCommand);
+    // if (autoCommand != null)
+    //   CommandScheduler.getInstance().schedule(autoCommand);
   }
 
   /** This function is called periodically during autonomous. */
@@ -208,15 +230,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    if (autoCommand != null)
-      CommandScheduler.getInstance().cancel(autoCommand);
+    // if (autoCommand != null)
+    //   CommandScheduler.getInstance().cancel(autoCommand);
   }
 
   /** This function is called once when teleop is enabled. */
-  @Override
+  @Override  
   public void teleopInit() {
-    if (autoCommand != null)
-      CommandScheduler.getInstance().cancel(autoCommand);
+    // if (autoCommand != null)
+    //   CommandScheduler.getInstance().cancel(autoCommand);
   }
 
   /** This function is called periodically during operator control. */
@@ -287,55 +309,55 @@ public class Robot extends TimedRobot {
 
     // ------------------------------------------------------------------------- //
 
-    if (gamepad1.getL1ButtonPressed()) {
-      shooter.setFlywheelPower(0.6);
-      shooter.setVerticalAngle(Constants.ShooterVerticalMaxDeg);
-      transfer.turn();
-      transfer.up();
-    } else if (gamepad1.getL1ButtonReleased()) {
-      shooter.stopFlywheels();
-      shooter.packShooter();
-      transfer.stopAll();
-    }
+    // if (gamepad1.getL1ButtonPressed()) {
+    //   shooter.setFlywheelPower(0.6);
+    //   shooter.setVerticalAngle(Constants.ShooterVerticalMaxDeg);
+    //   transfer.turn();
+    //   transfer.up();
+    // } else if (gamepad1.getL1ButtonReleased()) {
+    //   shooter.stopFlywheels();
+    //   shooter.packShooter();
+    //   transfer.stopAll();
+    // }
 
-    if (gamepad1.getCreateButton() && gamepad1.getSquareButton()) {
-      shooter.setFlywheelPower(-0.3);
-    } else if (gamepad1.getSquareButton()) {
-      shooter.setFlywheelPower(0.6);
-    } else if (gamepad1.getSquareButtonReleased()) {
-      shooter.stopAll();
-      shooter.packShooter();
-    }
+    // if (gamepad1.getCreateButton() && gamepad1.getSquareButton()) {
+    //   shooter.setFlywheelPower(-0.3);
+    // } else if (gamepad1.getSquareButton()) {
+    //   shooter.setFlywheelPower(0.6);
+    // } else if (gamepad1.getSquareButtonReleased()) {
+    //   shooter.stopAll();
+    //   shooter.packShooter();
+    // }
 
-    if (gamepad1.getCreateButton() && gamepad1.getCircleButton()) {
-      transfer.turnReverse();
-    } else if (gamepad1.getCircleButton()) {
-      transfer.turn();
-    } else if (gamepad1.getCircleButtonReleased()) {
-      // shooter.stopAll();
-      transfer.stopTurn();
-    }
+    // if (gamepad1.getCreateButton() && gamepad1.getCircleButton()) {
+    //   transfer.turnReverse();
+    // } else if (gamepad1.getCircleButton()) {
+    //   transfer.turn();
+    // } else if (gamepad1.getCircleButtonReleased()) {
+    //   // shooter.stopAll();
+    //   transfer.stopTurn();
+    // }
 
-    if (gamepad1.getCreateButton() && gamepad1.getR1Button()) {
-      intaker.intake(true);
-    } else if (gamepad1.getR1ButtonPressed()) {
-      intaker.intake();
-    } else if (gamepad1.getR1ButtonReleased()) {
-      intaker.stopIntake();
-    }
+    // if (gamepad1.getCreateButton() && gamepad1.getR1Button()) {
+    //   intaker.intake(true);
+    // } else if (gamepad1.getR1ButtonPressed()) {
+    //   intaker.intake();
+    // } else if (gamepad1.getR1ButtonReleased()) {
+    //   intaker.stopIntake();
+    // }
 
-    if (gamepad1.getR2ButtonPressed()) {
-      intaker.toggle();
-    }
+    // if (gamepad1.getR2ButtonPressed()) {
+    //   intaker.toggle();
+    // }
 
-    if (gamepad1.getR3Button()) {
-      shooter.setVerticalAngle(Constants.ShooterVerticalMaxDeg);
-    } else if (gamepad1.getR3ButtonReleased()) {
-      shooter.packShooter();
-    }
+    // if (gamepad1.getR3Button()) {
+    //   shooter.setVerticalAngle(Constants.ShooterVerticalMaxDeg);
+    // } else if (gamepad1.getR3ButtonReleased()) {
+    //   shooter.packShooter();
+    // }
 
-    if (gamepad1.getCrossButton()) shooter.autoAim(odo.getBotPoseEstimate_wpiBlue(), alliance);
-    else shooter.faceAllianceWall(odo.getBotPoseEstimate_wpiBlue(), alliance);
+    // if (gamepad1.getCrossButton() || gamepad0.getCircleButton()) shooter.autoAim(odo.getBotPoseEstimate_wpiBlue(), alliance);
+    // else shooter.faceAllianceWall(odo.getBotPoseEstimate_wpiBlue(), alliance);
 
   }
 

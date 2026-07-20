@@ -36,9 +36,9 @@ public class ShooterLimelightPoseCalculator {
      *   up      = ringCenterZ（固定高度）
      * </pre>
      *
-     * <p>Limelight 姿态（roll/pitch/yaw）为固定常量，不随角度变化。
+     * <p>Limelight 姿态：Roll/Pitch 为固定常量，Yaw 随环旋转角度变化。
      *
-     * @param horizontalAngleDeg 当前水平编码器角度（度，相对车头，顺时针为正）
+     * @param horizontalAngleDeg 当前水平编码器角度（度，相对车头，逆时针为正）
      */
     public void update(double horizontalAngleDeg) {
         double angleRad = Math.toRadians(
@@ -55,6 +55,7 @@ public class ShooterLimelightPoseCalculator {
                 forward, side, up,
                 Constants.ShooterLimelightFixedRollDeg,
                 Constants.ShooterLimelightFixedPitchDeg,
-                Constants.ShooterLimelightFixedYawDeg);
+                horizontalAngleDeg + Constants.ShooterLimelightAngleOffsetDeg
+                        + Constants.ShooterLimelightFixedYawDeg);
     }
 }

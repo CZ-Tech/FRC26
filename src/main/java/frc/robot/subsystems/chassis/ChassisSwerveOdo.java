@@ -20,6 +20,10 @@ public class ChassisSwerveOdo {
     private boolean isReady;
     private long lastSawTagNanos;
 
+    private int frontTagCount;
+    private int leftTagCount;
+    private int rightTagCount;
+
     public ChassisSwerveOdo(SwerveChassis modules, AHRS gyroAhrs) {
         gyro = gyroAhrs;
         this.modules = modules;
@@ -148,6 +152,10 @@ public class ChassisSwerveOdo {
                     .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LLNameLeft);
             LimelightHelpers.PoseEstimate mt2Right = LimelightHelpers
                     .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LLNameRight);
+
+            frontTagCount = mt2Front.tagCount;
+            leftTagCount = mt2Left.tagCount;
+            rightTagCount = mt2Right.tagCount;
 
             // 如果底盘角速度过大，直接放弃本周期的视觉修正
             if (Math.abs(gyro.getRate()) > 360) {
@@ -304,6 +312,16 @@ public class ChassisSwerveOdo {
         connectedRight = currHb - lastHeartbeatRight > Double.MIN_VALUE;
         lastHeartbeatRight = currHb;
         return connectedRight;
+    }
+
+    public int getFrontTagCount() {
+        return frontTagCount;
+    }
+    public int getLeftTagCount() {
+        return leftTagCount;
+    }
+    public int getRightTagCount() {
+        return rightTagCount;
     }
 
 }
