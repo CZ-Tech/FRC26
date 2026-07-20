@@ -38,8 +38,8 @@ public class Constants {
     // 电流限制（TODO/FIXME：按电机和减速比实测）
     public static double ShooterFlywheelStatorCurrentLimit = 20.0;
     public static double ShooterFlywheelSupplyCurrentLimit = 20.0;
-    public static double ShooterAngleStatorCurrentLimit    = 40.0;
-    public static double ShooterAngleSupplyCurrentLimit    = 40.0;
+    public static double ShooterAngleStatorCurrentLimit    = 20.0;
+    public static double ShooterAngleSupplyCurrentLimit    = 20.0;
 
     // 飞轮速度闭环 PID/FF（Slot0，VelocityVoltage，TODO/FIXME：实车整定）
     public static double ShooterFlywheelKP = 0.0;
@@ -77,7 +77,7 @@ public class Constants {
     public static double ShooterAngleToleranceDeg            = 1.0;
 
     // 水平角度电机 PID（SparkMax REVLib 位置闭环，TODO/FIXME：实车整定）
-    public static double ShooterHorizontalAngleKP = 5;
+    public static double ShooterHorizontalAngleKP = 7;
     public static double ShooterHorizontalAngleKI = 0.0;
     public static double ShooterHorizontalAngleKD = 0.1;
     public static double ShooterHorizontalAngleKIZone = 0.0;

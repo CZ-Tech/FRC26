@@ -229,11 +229,11 @@ public class Robot extends TimedRobot {
         -Constants.zeroIfZero(gamepad0.getRightY(), Constants.joystickDummyIgnore),
         -Constants.zeroIfZero(gamepad0.getRightX(), Constants.joystickDummyIgnore) };
 
-    // driveTrain.driveRobotFieldCentricLocalAlliance(
-    // // driveTrain.driveRobot(
-    //     Constants.toSpeed(gamepadL[0]),
-    //     Constants.toSpeed(gamepadL[1]),
-    //     Constants.toSpeed(gamepadR[1]));
+    driveTrain.driveRobotFieldCentricLocalAlliance(
+    // driveTrain.driveRobot(
+        Constants.toSpeed(gamepadL[0]),
+        Constants.toSpeed(gamepadL[1]),
+        Constants.toSpeed(gamepadR[1]));
 
     if (gamepad0.getL2ButtonPressed()) {
       shooter.setFlywheelPower(0.6);
@@ -260,7 +260,7 @@ public class Robot extends TimedRobot {
     } else if (gamepad0.getCircleButton()) {
       transfer.turn();
     } else if (gamepad0.getCircleButtonReleased()) {
-      shooter.stopAll();
+      // shooter.stopAll();
       transfer.stopTurn();
     }
 
@@ -276,8 +276,67 @@ public class Robot extends TimedRobot {
       intaker.toggle();
     }
 
-    
-    
+    if (gamepad0.getR3Button()) {
+      shooter.setVerticalAngle(Constants.ShooterVerticalMaxDeg);
+    } else if (gamepad0.getR3ButtonReleased()) {
+      shooter.packShooter();
+    }
+
+    if (gamepad0.getL3Button()) shooter.autoAim(odo.getBotPoseEstimate_wpiBlue(), alliance);
+    else shooter.faceAllianceWall(odo.getBotPoseEstimate_wpiBlue(), alliance);
+
+    // ------------------------------------------------------------------------- //
+
+    if (gamepad1.getL1ButtonPressed()) {
+      shooter.setFlywheelPower(0.6);
+      shooter.setVerticalAngle(Constants.ShooterVerticalMaxDeg);
+      transfer.turn();
+      transfer.up();
+    } else if (gamepad1.getL1ButtonReleased()) {
+      shooter.stopFlywheels();
+      shooter.packShooter();
+      transfer.stopAll();
+    }
+
+    if (gamepad1.getCreateButton() && gamepad1.getSquareButton()) {
+      shooter.setFlywheelPower(-0.3);
+    } else if (gamepad1.getSquareButton()) {
+      shooter.setFlywheelPower(0.6);
+    } else if (gamepad1.getSquareButtonReleased()) {
+      shooter.stopAll();
+      shooter.packShooter();
+    }
+
+    if (gamepad1.getCreateButton() && gamepad1.getCircleButton()) {
+      transfer.turnReverse();
+    } else if (gamepad1.getCircleButton()) {
+      transfer.turn();
+    } else if (gamepad1.getCircleButtonReleased()) {
+      // shooter.stopAll();
+      transfer.stopTurn();
+    }
+
+    if (gamepad1.getCreateButton() && gamepad1.getR1Button()) {
+      intaker.intake(true);
+    } else if (gamepad1.getR1ButtonPressed()) {
+      intaker.intake();
+    } else if (gamepad1.getR1ButtonReleased()) {
+      intaker.stopIntake();
+    }
+
+    if (gamepad1.getR2ButtonPressed()) {
+      intaker.toggle();
+    }
+
+    if (gamepad1.getR3Button()) {
+      shooter.setVerticalAngle(Constants.ShooterVerticalMaxDeg);
+    } else if (gamepad1.getR3ButtonReleased()) {
+      shooter.packShooter();
+    }
+
+    if (gamepad1.getCrossButton()) shooter.autoAim(odo.getBotPoseEstimate_wpiBlue(), alliance);
+    else shooter.faceAllianceWall(odo.getBotPoseEstimate_wpiBlue(), alliance);
+
   }
 
   /** This function is called once when the robot is disabled. */
