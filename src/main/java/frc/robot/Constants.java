@@ -36,8 +36,8 @@ public class Constants {
     public static boolean ShooterHorizontalAngleInverted  = true;
 
     // 电流限制（TODO/FIXME：按电机和减速比实测）
-    public static double ShooterFlywheelStatorCurrentLimit = 60.0;
-    public static double ShooterFlywheelSupplyCurrentLimit = 60.0;
+    public static double ShooterFlywheelStatorCurrentLimit = 20.0;
+    public static double ShooterFlywheelSupplyCurrentLimit = 20.0;
     public static double ShooterAngleStatorCurrentLimit    = 40.0;
     public static double ShooterAngleSupplyCurrentLimit    = 40.0;
 
@@ -48,19 +48,19 @@ public class Constants {
     public static double ShooterFlywheelKS = 0.0;
     public static double ShooterFlywheelKV = 0.12; // RPS 时典型起始值
 
-    // 角度位置闭环 PID/FF + 重力补偿（Slot0，PositionVoltage，TODO/FIXME：实车整定）
+    // 俯仰角度位置闭环 PID/FF + 重力补偿（TalonFX Slot0，PositionVoltage，TODO/FIXME：实车整定）
     // 说明：使用 PositionVoltage 而不是 MotionMagic；负载不大，靠 kP/kD + kG 抵消重力即可。
-    public static double ShooterAngleKP = 5.0;
-    public static double ShooterAngleKI = 0.0;
-    public static double ShooterAngleKD = 0.0;
-    public static double ShooterAngleKS = 0.0;
-    public static double ShooterAngleKV = 0.0; // 位置环通常不需要 kV
-    public static double ShooterAngleKG = 0.0; // 持续向上的重力补偿电压（TODO/FIXME：实测）
+    public static double ShooterVerticalAngleKP = 5.0;
+    public static double ShooterVerticalAngleKI = 0.0;
+    public static double ShooterVerticalAngleKD = 0.01;
+    public static double ShooterVerticalAngleKS = 0.0;
+    public static double ShooterVerticalAngleKV = 0.0; // 位置环通常不需要 kV
+    public static double ShooterVerticalAngleKG = 0.0; // 持续向上的重力补偿电压（TODO/FIXME：实测）
 
     // 编码器→角度系数（TODO/FIXME：按减速比和机械零点标定）
     // 含义：电机转数 × 该系数 = 机构角度（度）
     public static double ShooterVerticalEncoderToDeg   = 15.5585;
-    public static double ShooterHorizontalEncoderToDeg = 1.0;
+    public static double ShooterHorizontalEncoderToDeg = 33.6;
 
     // 角度限位（TODO/FIXME：按机械结构实测）
     public static double ShooterVerticalMinDeg   = 16.620761;
@@ -76,12 +76,12 @@ public class Constants {
     public static double ShooterFlywheelVelocityToleranceRPS = 5.0;
     public static double ShooterAngleToleranceDeg            = 1.0;
 
-    // SparkMax 水平角度电机 PID（REVLib 闭环，TODO/FIXME：实车整定）
-    public static double ShooterHorizontalSparkMaxKP = 0.1;
-    public static double ShooterHorizontalSparkMaxKI = 0.0;
-    public static double ShooterHorizontalSparkMaxKD = 0.0;
-    public static double ShooterHorizontalSparkMaxKIZone = 0.0;
-    public static double ShooterHorizontalSparkMaxKFF = 0.0;
+    // 水平角度电机 PID（SparkMax REVLib 位置闭环，TODO/FIXME：实车整定）
+    public static double ShooterHorizontalAngleKP = 5;
+    public static double ShooterHorizontalAngleKI = 0.0;
+    public static double ShooterHorizontalAngleKD = 0.1;
+    public static double ShooterHorizontalAngleKIZone = 0.0;
+    public static double ShooterHorizontalAngleKFF = 0.0;
 
     public static double goalFieldPosX_wpiBlue = 4.0296;  // meter
     public static double goalFieldPosY_wpiBlue = 4.0346;  // meter
@@ -140,8 +140,8 @@ public class Constants {
     public static int TransferTurnMotor2CANID = 31;
     public static int TransferUpMotorCANID   = 32;
 
-    public static double TransferTurnPower = 0.35;
-    public static double TransferUpPower   = 0.5;
+    public static double TransferTurnPower = 0.2;
+    public static double TransferUpPower   = 0.7;
 
     // --------------------------- 驱动轮参数 -------------------------------------------
     // 左前
@@ -194,7 +194,7 @@ public class Constants {
     // public static double LimelightPitchDeg = 30.0; // Pitch (degrees)（俯仰角）
     // public static double LimelightYawDeg   = -90;  // Yaw (degrees)（在水平面旋转，左加右减）
 
-    public static String LLNameFront = "limelight-front";
+    public static String LLNameFront = "limelight";
     public static String LLNameLeft  = "limelight-left";
     public static String LLNameRight = "limelight-right";
 

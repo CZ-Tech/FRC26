@@ -11,8 +11,8 @@ public enum Checklist {
     shooterMotorsOK,
     odoReady,
     odoAccurate,
-    allianceGot,
-    autoChosen;
+    allianceGot;
+    // autoChosen;
 
     private boolean val;
     private BooleanSupplier condition = () -> this.val;

@@ -110,7 +110,7 @@ public class Robot extends TimedRobot {
     // 初始化检查单
     // FIXME 如果面板上Prepared灯不绿，绝对绝对不能开始比赛！！！
     Checklist.allianceGot.set(() -> DriverStation.getAlliance().isPresent());
-    Checklist.autoChosen.set(() -> autoCommand != null);
+    // Checklist.autoChosen.set(() -> autoCommand != null);
     Checklist.MotorsOK.set(() -> driveTrain.isMotorConnected());
     Checklist.shooterMotorsOK.set(() -> shooter.areMotorsConnected());
     Checklist.odoAccurate.set(() -> odo.millisFromLastTag() <= Constants.WarnOdoIncorrectMillis);
@@ -155,11 +155,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
+    if (isDisabled()) alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
     CommandScheduler.getInstance().run(); // 执行全局调度器任务
-
-    if (isDisabled())
-      autoCommand = auto.getAuto(); // 赛前反复轮询自动路径
 
     Checklist.putAll(); // 执行检查单
 
@@ -168,24 +165,11 @@ public class Robot extends TimedRobot {
     if (gamepad0.getOptionsButtonPressed() && gamepad0.getCreateButton()) {
       driveTrain.setNowForward();
     }
-    SmartDashboard.putNumber("LimelightRotation", LimelightHelpers.getBotPose2d(Constants.LLNameFront).getRotation().getDegrees());
-    SmartDashboard.putNumber("LimelightPitching", LimelightHelpers.getBotPose3d(Constants.LLNameFront).getRotation().getY());
-
+    
     fieldpos.setRobotPose(odo.getBotPoseEstimate_wpiBlue());
     SmartDashboard.putData("FieldPos", fieldpos);
 
     driveTrain.putWheelHeadingDeg();
-    // SmartDashboard.putNumber("rLF", (lf.getTurningEncoderRadians()));
-    // SmartDashboard.putNumber("rRF", (rf.getTurningEncoderRadians()));
-    // SmartDashboard.putNumber("rLB", (lb.getTurningEncoderRadians()));
-    // SmartDashboard.putNumber("rRB", (rb.getTurningEncoderRadians()));
-
-    // lift.putMotorPosition();
-    intaker.putLog();
-    // 自瞄：根据场地坐标始终跟踪目标角度
-    // if (odo.isReady()) {
-    //   shooter.autoAim(odo.getBotPoseEstimate_wpiBlue(), alliance);
-    // }
     shooter.putData();
     transfer.putLog();
   }
@@ -245,37 +229,50 @@ public class Robot extends TimedRobot {
         -Constants.zeroIfZero(gamepad0.getRightY(), Constants.joystickDummyIgnore),
         -Constants.zeroIfZero(gamepad0.getRightX(), Constants.joystickDummyIgnore) };
 
-    driveTrain.driveRobotFieldCentricLocalAlliance(
-    // driveTrain.driveRobot(
-        Constants.toSpeed(gamepadL[0]),
-        Constants.toSpeed(gamepadL[1]),
-        Constants.toSpeed(gamepadR[1]));
+    // driveTrain.driveRobotFieldCentricLocalAlliance(
+    // // driveTrain.driveRobot(
+    //     Constants.toSpeed(gamepadL[0]),
+    //     Constants.toSpeed(gamepadL[1]),
+    //     Constants.toSpeed(gamepadR[1]));
 
-    if ((gamepad0.getL2Axis() + 1) / 2 > 0.5) {
+    if (gamepad0.getL2ButtonPressed()) {
       shooter.setFlywheelPower(0.6);
+      shooter.setVerticalAngle(Constants.ShooterVerticalMaxDeg);
       transfer.turn();
       transfer.up();
+    } else if (gamepad0.getL2ButtonReleased()) {
+      shooter.stopFlywheels();
+      shooter.packShooter();
+      transfer.stopAll();
     }
 
     if (gamepad0.getL1Button() && gamepad0.getSquareButton()) {
-      shooter.setFlywheelPower(0.2);
+      shooter.setFlywheelPower(-0.3);
     } else if (gamepad0.getSquareButton()) {
       shooter.setFlywheelPower(0.6);
+    } else if (gamepad0.getSquareButtonReleased()) {
+      shooter.stopAll();
+      shooter.packShooter();
     }
 
     if (gamepad0.getL1Button() && gamepad0.getCircleButton()) {
       transfer.turnReverse();
     } else if (gamepad0.getCircleButton()) {
       transfer.turn();
+    } else if (gamepad0.getCircleButtonReleased()) {
+      shooter.stopAll();
+      transfer.stopTurn();
     }
 
-    if (gamepad0.getL1Button() && (gamepad0.getR2Axis() + 1) / 2 > 0.5) {
+    if (gamepad0.getL1Button() && gamepad0.getR2Button()) {
       intaker.intake(true);
-    } else if ((gamepad0.getR2Axis() + 1) / 2 > 0.5) {
+    } else if (gamepad0.getR2ButtonPressed()) {
       intaker.intake();
+    } else if (gamepad0.getR2ButtonReleased()) {
+      intaker.stopIntake();
     }
 
-    if (gamepad0.getR1Button()) {
+    if (gamepad0.getR1ButtonPressed()) {
       intaker.toggle();
     }
 
@@ -306,15 +303,46 @@ public class Robot extends TimedRobot {
     // gamepadL[0],
     // gamepadL[1],
     // gamepadR[1]);
+    shooter.setVerticalAngle(Constants.ShooterVerticalMaxDeg);
   }
 
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    shooterTest();
+    shooterSystemTest();
+    // shooterTest();
     // swerveTest();
     // transferTest();
     // intakerTest();
+  }
+
+
+  public void shooterSystemTest() {
+
+    if (gamepad0.getL1ButtonPressed()) {
+      shooter.setFlywheelPower(0.4);      
+    } else if (gamepad0.getL1ButtonReleased()) {
+      shooter.stopFlywheels();
+    }
+
+    if (gamepad0.getR1ButtonPressed()) {
+      transfer.up();
+    } else if (gamepad0.getR1ButtonReleased()) {
+      transfer.stopUp();
+    }
+
+    if ((gamepad0.getR2Axis() + 1) / 2 > 0.5) {
+      transfer.setTurnPower(Constants.TransferTurnPower);
+    } else if ((gamepad0.getR2Axis() + 1) / 2 < 0.5) {
+      transfer.stopTurn();
+    }
+
+        // DPAD 右/左: 调整水平角
+    if (gamepad0.getPOV() == 90) {
+      shooter.setHorizontalAngle(shooter.getHorizontalAngleDeg() + 1.0);
+    } else if (gamepad0.getPOV() == 270) {
+      shooter.setHorizontalAngle(shooter.getHorizontalAngleDeg() - 1.0);
+    }
   }
 
   boolean isAutoMoving = false;
@@ -430,13 +458,16 @@ public class Robot extends TimedRobot {
     // Transfer 手动测试（进入 Test 模式）
     // 在 SmartDashboard 中观察各项读数，用 gamepad0 逐项触发
     // =============================
+    shooter.setVerticalAngle(40);
 
     transfer.putLog();
 
     // --- 拨球滚轮测试 ---
     // Cross: 开始拨球
-    if (gamepad0.getCrossButton()) {
+    if (gamepad0.getCrossButtonPressed()) {
       transfer.turn();
+    } else if (gamepad0.getCircleButtonReleased()) {
+      transfer.stopTurn();
     }
     // Circle: 停止拨球
     if (gamepad0.getCircleButton()) {
@@ -453,7 +484,7 @@ public class Robot extends TimedRobot {
       if (!transferUping) {
         transferUping = true;
         transfer.up();
-      } else {
+      } else if (gamepad0.getTriangleButtonReleased()) {
         transferUping = false;
         transfer.stopUp();
        }

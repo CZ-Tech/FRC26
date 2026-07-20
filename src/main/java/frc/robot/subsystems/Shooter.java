@@ -71,12 +71,12 @@ public class Shooter {
     angleConfig.CurrentLimits.SupplyCurrentLimit = Constants.ShooterAngleSupplyCurrentLimit;
     angleConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    angleConfig.Slot0.kP = Constants.ShooterAngleKP;
-    angleConfig.Slot0.kI = Constants.ShooterAngleKI;
-    angleConfig.Slot0.kD = Constants.ShooterAngleKD;
-    angleConfig.Slot0.kS = Constants.ShooterAngleKS;
-    angleConfig.Slot0.kV = Constants.ShooterAngleKV;
-    angleConfig.Slot0.kG = Constants.ShooterAngleKG;
+    angleConfig.Slot0.kP = Constants.ShooterVerticalAngleKP;
+    angleConfig.Slot0.kI = Constants.ShooterVerticalAngleKI;
+    angleConfig.Slot0.kD = Constants.ShooterVerticalAngleKD;
+    angleConfig.Slot0.kS = Constants.ShooterVerticalAngleKS;
+    angleConfig.Slot0.kV = Constants.ShooterVerticalAngleKV;
+    angleConfig.Slot0.kG = Constants.ShooterVerticalAngleKG;
 
     // 分别设置反转并应用（两飞轮需要不同的反转）
     flywheelConfig.MotorOutput.Inverted = Constants.ShooterTopFlywheelInverted
@@ -99,11 +99,11 @@ public class Shooter {
     horizontalConfig.inverted(Constants.ShooterHorizontalAngleInverted);
 
     horizontalConfig.closedLoop.pid(
-        Constants.ShooterHorizontalSparkMaxKP,
-        Constants.ShooterHorizontalSparkMaxKI,
-        Constants.ShooterHorizontalSparkMaxKD,
+        Constants.ShooterHorizontalAngleKP,
+        Constants.ShooterHorizontalAngleKI,
+        Constants.ShooterHorizontalAngleKD,
         ClosedLoopSlot.kSlot0);
-    horizontalConfig.closedLoop.iZone(Constants.ShooterHorizontalSparkMaxKIZone, ClosedLoopSlot.kSlot0);
+    horizontalConfig.closedLoop.iZone(Constants.ShooterHorizontalAngleKIZone, ClosedLoopSlot.kSlot0);
     horizontalConfig.closedLoop.maxOutput(
         Constants.ShooterHorizontalMaxPower, ClosedLoopSlot.kSlot0);
 
@@ -147,6 +147,10 @@ public class Shooter {
     targetFlywheelVelocityRPS = 0;
     topFlywheelMotor.stopMotor();
     bottomFlywheelMotor.stopMotor();
+  }
+
+  public void packShooter() {
+    setVerticalAngle(Constants.ShooterVerticalMinDeg);
   }
 
   /** 直接给飞轮开环占空比，调方向/测试用 */
