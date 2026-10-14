@@ -52,7 +52,7 @@ public class Constants {
     // 说明：使用 PositionVoltage 而不是 MotionMagic；负载不大，靠 kP/kD + kG 抵消重力即可。
     public static double ShooterVerticalAngleKP = 5.0;
     public static double ShooterVerticalAngleKI = 0.0;
-    public static double ShooterVerticalAngleKD = 0.01;
+    public static double ShooterVerticalAngleKD = 0.2;
     public static double ShooterVerticalAngleKS = 0.0;
     public static double ShooterVerticalAngleKV = 0.0; // 位置环通常不需要 kV
     public static double ShooterVerticalAngleKG = 0.0; // 持续向上的重力补偿电压（TODO/FIXME：实测）
@@ -64,7 +64,7 @@ public class Constants {
 
     // 角度限位（TODO/FIXME：按机械结构实测）
     public static double ShooterVerticalMinDeg   = 16.620761;
-    public static double ShooterVerticalMaxDeg   =  75.0 - 2.0;
+    public static double ShooterVerticalMaxDeg   =  75.0 - 3.0;
     public static double ShooterVerticalInitDeg = ShooterVerticalMinDeg - 2.0;  // 竖直方向调节电机初始化时应处在的角度
     public static double ShooterHorizontalMinDeg = -170.0; // 水平旋转硬限位(从零点向右)
     public static double ShooterHorizontalMaxDeg =  170.0; // 水平旋转硬限位从(零点向左)
@@ -81,7 +81,7 @@ public class Constants {
     public static double ShooterHorizontalAngleKI = 0.0;
     public static double ShooterHorizontalAngleKD = 0.0;
     public static double ShooterHorizontalAngleKIZone = 0.0;
-    public static double ShooterHorizontalAngleKFF = 0.3;
+    public static double ShooterHorizontalAngleKS = 0.2;
 
     public static double goalFieldPosX_wpiBlue = 4.0296;  // meter
     public static double goalFieldPosY_wpiBlue = 4.0346;  // meter
@@ -206,7 +206,7 @@ public class Constants {
     public static double LimelightRXOffset  = -0.241;  // Forward offset (meters)
     public static double LimelightRYOffset  = 0.115;  // Side offset (meters)
     public static double LimelightRZOffset  = 0.527;  // Height offset (meters)
-    public static double LimelightRRollDeg  = 0.0;  // Roll (degrees)（像方向盘那么转）
+    public static double LimelightRRollDeg  = 180.0;  // Roll (degrees)（像方向盘那么转）
     public static double LimelightRPitchDeg = 45.0; // Pitch (degrees)（俯仰角）
     public static double LimelightRYawDeg   = -90;  // Yaw (degrees)（在水平面旋转，左加右减）
 

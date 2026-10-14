@@ -158,6 +158,8 @@ public class Robot extends TimedRobot {
         .prepareAuto(odo, driveTrain);
     auto.prepareAutoChooser();
     System.out.println("RobotInit Init Finished! -------------------------");
+
+
   }
 
   /**
@@ -216,8 +218,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     autoCommand = auto.getAuto(); // 开赛前再同步一次选项
-    // if (autoCommand != null)
-    //   CommandScheduler.getInstance().schedule(autoCommand);
+    if (autoCommand != null)
+      CommandScheduler.getInstance().schedule(autoCommand);
   }
 
   /** This function is called periodically during autonomous. */
@@ -230,15 +232,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousExit() {
-    // if (autoCommand != null)
-    //   CommandScheduler.getInstance().cancel(autoCommand);
+    if (autoCommand != null)
+      CommandScheduler.getInstance().cancel(autoCommand);
   }
 
   /** This function is called once when teleop is enabled. */
   @Override  
   public void teleopInit() {
-    // if (autoCommand != null)
-    //   CommandScheduler.getInstance().cancel(autoCommand);
+    if (autoCommand != null)
+      CommandScheduler.getInstance().cancel(autoCommand);
   }
 
   /** This function is called periodically during operator control. */
@@ -298,14 +300,14 @@ public class Robot extends TimedRobot {
       intaker.toggle();
     }
 
-    if (gamepad0.getR3Button()) {
+    if (gamepad0.getR3ButtonPressed()) {
       shooter.setVerticalAngle(Constants.ShooterVerticalMaxDeg);
     } else if (gamepad0.getR3ButtonReleased()) {
       shooter.packShooter();
     }
 
-    if (gamepad0.getL3Button()) shooter.autoAim(odo.getBotPoseEstimate_wpiBlue(), alliance);
-    else shooter.faceAllianceWall(odo.getBotPoseEstimate_wpiBlue(), alliance);
+    // if (gamepad0.getL3Button()) shooter.autoAim(odo.getBotPoseEstimate_wpiBlue(), alliance);
+    // else shooter.faceAllianceWall(odo.getBotPoseEstimate_wpiBlue(), alliance);
 
     // ------------------------------------------------------------------------- //
 

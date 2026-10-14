@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
@@ -103,6 +104,13 @@ public class Shooter {
         Constants.ShooterHorizontalAngleKI,
         Constants.ShooterHorizontalAngleKD,
         ClosedLoopSlot.kSlot0);
+        // .feedForward
+        //   .kS(Constants.ShooterHorizontalAngleKS)
+        //   .kV(0)
+        //   .kA(0)
+        //   .kG(0) // kG is a linear gravity feedforward, for an elevator
+        //   .kCos(0) // kCos is a cosine gravity feedforward, for an arm
+        //   .kCosRatio(0); // kCosRatio relates the encoder position to absolute position;
     horizontalConfig.closedLoop.iZone(Constants.ShooterHorizontalAngleKIZone, ClosedLoopSlot.kSlot0);
     horizontalConfig.closedLoop.maxOutput(
         Constants.ShooterHorizontalMaxPower, ClosedLoopSlot.kSlot0);
@@ -297,7 +305,6 @@ public class Shooter {
   public void faceAllianceWall(Pose2d robotPose, Alliance alliance) {
     double horizontalAngle = autoAim.calculateWallFaceAngle(robotPose, alliance);
     setHorizontalAngle(horizontalAngle);
-    setVerticalAngle(Constants.ShooterVerticalMaxDeg);
   }
 
   public void putData() {
